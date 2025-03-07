@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 将status改为DEBUG，这样可以看到log4j2的内部日志 -->
+<Configuration status="DEBUG" monitorInterval="30">
+    <Properties>
+        <!-- 定义日志文件的基础路径 -->
+        <Property name="LOG_HOME">./logs</Property>
+    </Properties>
+
+    <Appenders>
+        <!-- 控制台输出 -->
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </Console>
+
+        <!-- 错误记录文件 -->
+        <RollingFile name="ErrorFile"
+                     fileName="${LOG_HOME}/migration_errors.log"
+                     filePattern="${LOG_HOME}/migration_errors-%d{yyyy-MM-dd}-%i.log"
+                     immediateFlush="true"
+                     append="true">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} - %msg%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="10 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="20"/>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <!-- 添加 Log4j2 内部日志记录器 -->
+        <Logger name="org.apache.logging.log4j" level="DEBUG" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
+
+        <Root level="info">
+            <AppenderRef ref="Console"/>
+        </Root>
+
+        <Logger name="migrationError" level="error" additivity="false">
+            <AppenderRef ref="ErrorFile"/>
+            <AppenderRef ref="Console"/>
+        </Logger>
+    </Loggers>
+</Configuration>

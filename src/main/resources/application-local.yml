@@ -1,0 +1,171 @@
+spring:
+  datasource:
+    druid:
+      driver-class-name: com.mysql.jdbc.Driver
+      usePingMethod: false
+      filter:
+        config:
+          enabled: true
+        wall:
+          config:
+            alter-table-allow: true
+            call-allow: false
+            do-privileged-allow: false
+            drop-table-allow: false
+            truncate-allow: false
+          db-type: mariadb
+          enabled: true
+      filters: stat,slf4j,wall
+      initial-size: 2
+      max-active: 150
+      max-pool-prepared-statement-per-connection-size: -1
+      max-wait: 60000
+      min-evictable-idle-time-millis: 300000
+      min-idle: 5
+      pool-prepared-statements: false
+      stat-view-servlet:
+        enabled: true
+        loginPassword: admin
+        loginUsername: admin
+        resetEnable: false
+        urlPattern: /druid/*
+      test-on-borrow: false
+      test-on-return: false
+      test-while-idle: true
+      time-between-eviction-runs-millis: 60000
+      #url: jdbc:mysql://192.168.24.133:3306/scccs?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowMultiQueries=true&allowPublicKeyRetrieval=true&serverTimezone=GMT%2B8
+      url: jdbc:mysql://192.168.233.138:3306/scccs?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowMultiQueries=true&allowPublicKeyRetrieval=true&serverTimezone=GMT%2B8&rewriteBatchedStatements=true
+      #url: jdbc:mysql://192.168.233.138:3306/scccs
+      #url: jdbc:mysql://192.168.24.133:3306/scccs
+      username: root
+      password: root
+      #password: P@ssw0rd
+      validation-query: SELECT 'x'
+      validation-query-timeout: 60000
+      web-stat-filter:
+        enabled: true
+        exclusions: '*.js,*.gif,*.jpg,*.bmp,*.png,*.css,*.ico,/druid/*'
+        session-stat-enable: false
+        session-stat-max-count: 1000
+        url-pattern: /*
+  mvc:
+    static-path-pattern: /static/**
+    view:
+      prefix: /WEB-INF/jsp/
+      suffix: .jsp
+  web:
+    resources:
+      static-locations: classpath:/static/
+  servlet:
+    multipart:
+      max-file-size: -1
+      max-request-size: -1
+  devtools:
+    restart:
+      enabled: true
+    freemarker:
+      cache: false
+caffeine:
+  lock:
+    time: 60
+
+mybatis-plus:
+  configuration:
+    #log-impl: 'org.apache.ibatis.logging.stdout.StdOutImpl'
+    log-impl: 'org.apache.ibatis.logging.nologging.NoLoggingImpl'
+
+schedule:
+  jobs:
+    enable: 'false '
+
+ecomm:
+  host: SWDUITITMFT01V
+  port: 22
+  username: cefs_fis_scccs
+  pwdAuth: false
+  password: password
+  privateKeyPath: C:/scccs/eform/SWDeComm_Key_U082F.dat
+  privateKeyPassphase:
+  cardEformFolder: form/card
+  companyEformFolder: form/company
+  localCardEformFolder: C:/scccs/eform/card/
+  localCompanyEformFolder: C:/scccs/eform/company/
+  fps_username: scccs_ftp_iti
+  fps_privateKeyPath: C:/scccs/fps/SWDeComm_Key_U110.dat
+  fps_folder: toSCCCS
+  fps_localFolder: C:/scccs/fps/files/
+  fps_pgpPrivateKey: C:/scccs/fps/fps_pri_uat.asc
+
+sso:
+  keytab:
+    path: C:/scccs/sso/scccssvc.keytab
+  service:
+    principal:
+      name: HTTP/swduscctapp01v.swd.hksarg
+  valid:
+    domain: SWD.HKSARG
+  enable: 'false'
+
+generate:
+  jsonFilePath: C:/scccs/jsonFile/
+  appJsonEnFilePath: C:/scccs/APP/en/
+  appJsonTcFilePath: C:/scccs/APP/tc/
+  appJsonScFilePath: C:/scccs/APP/sc/
+  excelFilePath: C:/scccs/excelFile/
+  xmlFilePath: C:/scccs/xmlFile/
+  companyInformationFileWebPath: C:/scccs/companyInformationFile/WEB/
+  companyInformationFileAppPath: C:/scccs/companyInformationFile/APP/
+  companyInformationFilePath: C:/scccs/companyInformationFile/
+  companyLetterTemplate: C:/scccs/template/
+
+eform:
+  importFailPath:
+    card: C:/scccs/eformImportFailFile/card/
+    company: C:/scccs/eformImportFailFile/company/
+
+photoPath: C:/scccs/photo
+
+eproof:
+  #host: https://47.243.203.101:5000
+  host: https://localhost:5000
+  #host: https://10.54.225.138
+  clientId: SWD001
+  clientSecret: =0sk5*YHG%zyAG7+PhK+
+  privateKey: C:/scccs/eproof/privatekey.pem
+  did: did:eproof:7af677d2-058c-4e30-bbd2-1db1c10bbd4f
+  didKey: scccs01
+  docTypeId: e1f7fa37-f1b7-4f14-9f7f-e0d71b102fe8
+  templateCode: SWD001-scec-1
+  hkicSalt: Swd_Scccs_202409
+  hkicSaltId: 1bdbdd17-8bf8-4bb2-b5e3-4417a6836671
+  sdid: dTaKdz*PmTHB8Dmr
+  dataUrl: https://47.243.203.101:5000/eProof-data
+
+  photoPath: D:/Photo/
+  #photoPath: C:/scccs/photo
+  eformPhotoPath: C:/scccs/eform/photo/
+  modifyPhotoPath: C:/scccs/modifyPhoto/
+  eformPdfPath: C:/scccs/eform/pdf/
+  eformZipFolderImportPath: C:/scccs/FISImport/
+  eformImportCutoffDay: 7
+  emailTempPath: C:/scccs/email/template/
+  #emailTempPath: /Users/nicklauszhang/Documents/email/template/
+  tempScanPhotoTempPath: C:/scccs/scanPhoto/
+
+    #cronJob:
+  # test only
+  # checkDataPurgeStatus: "*/30 * * * * ?"
+  #  checkDataPurgeStatus: "-"
+
+  egis-email:
+    configPath: C:/scccs/email/config/
+    #  configPath: /Users/nicklauszhang/Documents/email/config/
+    qrConfigPath: C:/scccs/email/qrCode/
+  #  qrConfigPath: /Users/nicklauszhang/Documents/email/qrCode/
+  reportPath:
+    card: C:/scccs/report/card/
+    company: C:/scccs/report/company/
+    system: C:/scccs/report/system/
+
+  gisUrl: https://www.als.gov.hk/lookup
+

@@ -1,0 +1,92 @@
+package com.igsl.migration.model;
+
+import lombok.Data;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
+
+@Data
+
+public class SearchApplication {
+    private int applicantId;
+    private int applicationRecId;
+    private String applicationRecIds;
+    private LocalDate dateDob;
+    private String ageValid;
+    private String assigned;
+    private String notYet;
+    private String hkid;
+    private String hkidCheckDigit;
+    private String applicantName;
+    private String applicantChiName;
+    private String applicantFirstName;
+    private String applicantLastName;
+    private String eformRefNo;
+    private String cardNo;
+    private String sex;
+    private String countryCode;
+    private String phoneNum;
+    private String photoPath;
+    private String paymentStatus;
+    private String applicationType;
+    private String validity;
+    private String applicationStatus;
+    private String applicantStatus;
+    private String batchNo;
+    private String district;
+    private String applicationSource;
+    private String dob;
+    private String displayYear;
+    private String dobFrom;
+    private String dobTo;
+    private String receiveDate;
+    private String receiveDateFrom;
+    private String receiveDateTo;
+    private Date inputDate;
+    private String inputDateFrom;
+    private String inputDateTo;
+    private String email;
+    private LocalDateTime assignDate;
+    private String excludeFee;
+    private String chequeNo;
+    private String center;
+    private String GMRSReceiptNo;
+    private String paymentAmount;
+    private String paymentMethod;
+    private String paymentDesc;
+    private LocalDateTime paymentRecDate;
+    private LocalDateTime createdDate;
+    private String createdBy;
+    private LocalDateTime updatedDate;
+    private String updatedBy;
+    private String applicantImage;
+    private String chiName;
+    private String engName;
+    private String assignedUserId;
+    private LocalDate returnMailDate;
+    private String followUpAction;
+    private String returnFrom;
+    private LocalDate resentDate;
+    private String returnMailRemarks;
+    private String rejectReason;
+    private String remarks;
+    private String otherRemarks;
+    private String elecCard;
+    
+    private String addrType;
+    private String region;
+    private String streetName;
+    private String streetNo;
+    private String estateName;
+    private String phase;
+    private String blockNo;
+    private String blockType;
+    private String blockTypeOther;
+    private String buildingName;
+    private String floor;
+    private String unitNo;
+    private String unitType;
+    private String unitTypeOther;
+    private String addrOther;
+}

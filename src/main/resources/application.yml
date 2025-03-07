@@ -1,0 +1,51 @@
+server:
+  port: 8091
+  mandatory-file-encoding: UTF-8
+  servlet:
+    session:
+      cookie:
+        max-age: 900s
+      timeout: 900s
+
+spring:
+  jmx:
+    enabled: false
+  profiles:
+    active: prod
+  jackson:
+    default-property-inclusion: non_null
+    property-naming-strategy: LOWER_CAMEL_CASE
+    time-zone: GMT+8
+  main:
+    allow-circular-references: true
+    banner-mode: off
+  servlet:
+    multipart:
+      enabled: true
+
+mybatis-plus:
+  global-config:
+    banner: off
+
+photoPath: D:/scccs/photo/
+eformPhotoPath: D:/scccs/eform/photo/
+modifyPhotoPath: D:/scccs/modifyPhoto/
+eformPdfPath: D:/scccs/eform/pdf/
+eformZipFolderImportPath: D:/scccs/FISImport/
+eformImportCutoffDay: 7
+emailTempPath: D:/scccs/email/template/
+#emailTempPath: /Users/nicklauszhang/Documents/email/template/
+tempScanPhotoTempPath: D:/scccs/scanPhoto/
+
+cronJob:
+  checkDataPurgeStatus: "*/30 * * * * ?"
+
+egis-email:
+  configPath: D:/scccs/email/config/
+  qrConfigPath: D:/scccs/email/qrCode/
+reportPath:
+  card: D:/scccs/report/card/
+  company: D:/scccs/report/company/
+  system: D:/scccs/report/system/
+
+gisUrl: https://www.als.gov.hk/lookup

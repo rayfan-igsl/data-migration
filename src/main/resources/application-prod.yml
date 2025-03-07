@@ -1,0 +1,146 @@
+spring:
+  datasource:
+    druid:
+      driver-class-name: com.mysql.jdbc.Driver
+      filter:
+        config:
+          enabled: true
+        wall:
+          config:
+            alter-table-allow: true
+            call-allow: false
+            do-privileged-allow: false
+            drop-table-allow: false
+            truncate-allow: false
+          db-type: mariadb
+          enabled: true
+      filters: stat,slf4j,wall
+      initial-size: 2
+      max-active: 150
+      max-pool-prepared-statement-per-connection-size: -1
+      max-wait: 60000
+      min-evictable-idle-time-millis: 300000
+      min-idle: 5
+      connection-properties: config.decrypt=true;config.decrypt.key=MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAOE7JWjb+0diPAMliZ3Jp/WFpzPqCDZylSuwY1oC6zhrjqCDfdTJKvwFJhM9ZbPrAI/pNKdx7aekwmn+GMIjcGsCAwEAAQ==
+      pool-prepared-statements: false
+      stat-view-servlet:
+        enabled: true
+        loginPassword: admin
+        loginUsername: admin
+        resetEnable: false
+        urlPattern: /druid/*
+      test-on-borrow: false
+      test-on-return: false
+      test-while-idle: true
+      time-between-eviction-runs-millis: 60000
+      url: jdbc:mysql://SWDPSCCTDBS01V:3306/scccs?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull&rewriteBatchedStatements=true
+      username: root
+      password: AXk29NOX3sGtqY0yji4nC/yQNfmB3DdMzIk8aRra5VgexnNX5Z7Y5baxOjaL8DvtKfXcfQh/neL0ubt6066ogA==
+      validation-query: SELECT 'x'
+      validation-query-timeout: 60000
+      web-stat-filter:
+        enabled: true
+        exclusions: '*.js,*.gif,*.jpg,*.bmp,*.png,*.css,*.ico,/druid/*'
+        session-stat-enable: false
+        session-stat-max-count: 1000
+        url-pattern: /*
+  mvc:
+    static-path-pattern: /static/**
+    view:
+      prefix: /WEB-INF/jsp/
+      suffix: .jsp
+  web:
+    resources:
+      static-locations: classpath:/static/
+  servlet:
+    multipart:
+      max-file-size: -1
+      max-request-size: -1
+  devtools:
+    restart:
+      enabled: true
+    freemarker:
+      cache: false
+caffeine:
+  lock:
+    time: 60
+
+mybatis-plus:
+  configuration:
+    #log-impl: 'org.apache.ibatis.logging.stdout.StdOutImpl'
+    log-impl: 'org.apache.ibatis.logging.nologging.NoLoggingImpl'
+schedule:
+  jobs:
+    enable: 'true '
+
+ecomm:
+  #host: 10.54.160.132
+#  host: SWDPITITMFT01V
+  port: 22
+  username: cefs_fis_scccs
+  pwdAuth: false
+  password:
+  privateKeyPath: D:/scccs/eform/SWDeComm_Key_P082F.dat
+  privateKeyPassphase:
+  cardEformFolder: form/card
+  companyEformFolder: form/company
+  localCardEformFolder: D:/scccs/eform/card/
+  localCompanyEformFolder: D:/scccs/eform/company/
+  fps_username: scccs_ftp_iti
+  fps_privateKeyPath: D:/scccs/fps/SWDeComm_Key_P110.dat
+  fps_folder: toSCCCS
+  fps_localFolder: D:/scccs/fps/files/
+  fps_pgpPrivateKey: D:/scccs/fps/fps_pri_prod.asc
+
+sso:
+  keytab:
+    path: D:/scccs/sso/scccssvcp.keytab
+  service:
+    principal:
+      name: HTTP/swdpscctapp01v.swd.hksarg
+  valid:
+    domain: SWD.HKSARG
+  enable: 'true'
+
+generate:
+  jsonFilePath: D:/scccs/jsonFile/
+  appJsonEnFilePath: D:/scccs/APP/en/
+  appJsonTcFilePath: D:/scccs/APP/tc/
+  appJsonScFilePath: D:/scccs/APP/sc/
+  excelFilePath: D:/scccs/excelFile/
+  xmlFilePath: D:/scccs/xmlFile/
+  companyInformationFileWebPath: D:/scccs/companyInformationFile/WEB/
+  companyInformationFileAppPath: D:/scccs/companyInformationFile/APP/
+  companyInformationFilePath: D:/scccs/companyInformationFile/
+  companyLetterTemplate: D:/scccs/template/
+
+eform:
+  importFailPath:
+    card: D:/scccs/eformImportFailFile/card/
+    company: D:/scccs/eformImportFailFile/company/
+
+
+photoPath: D:/scccs/photo/
+eformPhotoPath: D:/scccs/eform/photo/
+modifyPhotoPath: D:/scccs/modifyPhoto/
+eformPdfPath: D:/scccs/eform/pdf/
+eformZipFolderImportPath: D:/scccs/FISImport/
+eformImportCutoffDay: 7
+emailTempPath: D:/scccs/email/template/
+#emailTempPath: /Users/nicklauszhang/Documents/email/template/
+tempScanPhotoTempPath: D:/scccs/scanPhoto/
+
+eproof:
+  host: https://10.54.173.6
+  clientId: SWD001
+  clientSecret: E!pS0tns4=7x$Ao+X1WZ
+  privateKey: D:/scccs/eproof/privatekey.pem
+  did: did:eproof:cdf07013-9929-4939-8811-e2b28030f0a8
+  didKey: scccs01
+  docTypeId: bc048b34-02ab-4e6e-a875-09a0c0e9afc1
+  templateCode: SWD001-scec-1
+  hkicSalt: Swd_Scccs_202409
+  hkicSaltId: 6d96997b-57dc-4629-af82-1da74c3b95fc
+  sdid: m9Z=tM^vm&S?P_7g
+#  dataUrl: https://10.54.172.6/eProof-data
+  dataUrl: https://eproof-scccs.swd.hksarg/eProof-data
