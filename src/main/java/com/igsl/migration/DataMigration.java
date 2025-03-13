@@ -91,7 +91,7 @@ public class DataMigration {
         stopWatch.start();
 
         Long totalUnprocessedCount = 0L;
-        if (!fileMode) {
+        if (!fileMode && !revokeMode) {
             totalUnprocessedCount = applicationRecordService.getUnprocessedRecordsCount();
             String startLog = String.format(
                     "\n-------------------" +
@@ -264,7 +264,7 @@ public class DataMigration {
     }
 
     private void executeRevoke() {
-        log.info("Starting revocation process with batchSize={}, batch={}, threads={}", batchSize, batch, threadCount);
+        log.info("Starting revocation process from file");
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
@@ -273,92 +273,68 @@ public class DataMigration {
             String token = EProofApiUtil.initializeToken();
             log.info("Successfully initialized token for revocation");
 
-            BatchStats grandTotalStats = new BatchStats();
-
-            for (int batchIndex = 0; batchIndex < batch; batchIndex++) {
-                StopWatch batchStopWatch = new StopWatch();
-                batchStopWatch.start();
-                LocalDateTime batchStartTime = LocalDateTime.now();
-
-                // Get records for this batch
-                List<ApplicationRecord> allRecords = applicationRecordService
-                        .getApplicationRecordsWithEproofUid(batchSize, offset);
-                if (allRecords.isEmpty()) {
-                    String emptyLog = "No more records to revoke\n";
-                    log.info(emptyLog);
-                    writeToFile("logs/batch_execution_time.log", emptyLog);
-                    break;
-                }
-
-                // 根据 applicationRecId 分配记录给不同线程
-                List<List<ApplicationRecord>> threadRecords = new ArrayList<>(threadCount);
-                for (int i = 0; i < threadCount; i++) {
-                    threadRecords.add(new ArrayList<>());
-                }
-
-                // 根据 ID 取模分配记录
-                for (ApplicationRecord record : allRecords) {
-                    int threadIndex = (int) (record.getApplicationRecId() % threadCount);
-                    threadRecords.get(threadIndex).add(record);
-                }
-
-                // 创建线程池并提交任务
-                executorService = Executors.newFixedThreadPool(threadCount);
-                List<Future<BatchStats>> futures = new ArrayList<>();
-
-                for (int threadIndex = 0; threadIndex < threadCount; threadIndex++) {
-                    List<ApplicationRecord> recordsForThread = threadRecords.get(threadIndex);
-                    if (!recordsForThread.isEmpty()) {
-                        Future<BatchStats> future = executorService
-                                .submit(() -> processRevokeRecordsBatch(recordsForThread));
-                        futures.add(future);
-                    }
-                }
-
-                // 收集处理结果
-                BatchStats batchStats = new BatchStats();
-                for (Future<BatchStats> future : futures) {
-                    try {
-                        BatchStats stats = future.get();
-                        batchStats.successCount += stats.successCount;
-                        batchStats.failureCount += stats.failureCount;
-                    } catch (InterruptedException | ExecutionException e) {
-                        log.error("Thread execution error", e);
-                    }
-                }
-
-                executorService.shutdown();
-                batchStopWatch.stop();
-                LocalDateTime batchEndTime = LocalDateTime.now();
-
-                // 更新总计数据
-                grandTotalStats.successCount += batchStats.successCount;
-                grandTotalStats.failureCount += batchStats.failureCount;
-
-                // 记录批次执行结果
-                String batchLog = String.format(
-                        "Revoke Batch %d: processed %d records, begin time: %s, end time: %s, consume time: %.3f seconds\n"
-                                +
-                                "    Success: %d records\n" +
-                                "    Failure: %d records\n",
-                        batchIndex + 1,
-                        allRecords.size(),
-                        batchStartTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")),
-                        batchEndTime.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS")),
-                        batchStopWatch.getTotalTimeMillis() / 1000.0,
-                        batchStats.successCount,
-                        batchStats.failureCount);
-                log.info(batchLog);
-                writeToFile("logs/batch_execution_time.log", batchLog);
+            // 从文件读取UID列表
+            List<String> uidList = getUidListFromFile("logs/revokeList.txt");
+            if (uidList.isEmpty()) {
+                log.info("No UIDs to revoke found in the file");
+                return;
             }
-
+            
+            log.info("Found {} UIDs to revoke in file", uidList.size());
+            
+            BatchStats grandTotalStats = new BatchStats();
+            
+            // 单线程处理所有UID
+            for (String uid : uidList) {
+                try {
+                    EProofData config = new EProofData();
+                    config.setDocUId(uid);
+                    
+                    // 先执行revoke操作
+                    if (EProofApiUtil.revokeDoc(config)) {
+                        log.info("Successfully revoked document with UID: {}", uid);
+                        grandTotalStats.successCount++;
+                        
+                        // 查询对应的ApplicationRecord
+                        ApplicationRecord record = applicationRecordService.getApplicationRecordByEproofUid(uid);
+                        
+                        if (record != null) {
+                            // update record
+                            LambdaUpdateWrapper<ApplicationRecord> updateWrapper = new LambdaUpdateWrapper<>();
+                            updateWrapper.eq(ApplicationRecord::getApplicationRecId, record.getApplicationRecId())
+                                    .set(ApplicationRecord::getEproofJsonData, "C")
+                                    .set(ApplicationRecord::getEproofHash, null)
+                                    .set(ApplicationRecord::getEproofUid, null)
+                                    .set(ApplicationRecord::getEproofVersion, null)
+                                    .set(ApplicationRecord::getEproofToken, null)
+                                    .set(ApplicationRecord::getEproofGenerateDatetime, null);
+                            
+                            applicationRecordService.update(updateWrapper);
+                            log.info("Updated application record with ID: {}", record.getApplicationRecId());
+                        } else {
+                            log.warn("No application record found for UID: {}", uid);
+                        }
+                    } else {
+                        grandTotalStats.failureCount++;
+                        String errorMsg = String.format("Failed to revoke document with UID: %s\n", uid);
+                        writeToFile(errorLogFile, errorMsg);
+                        log.error(errorMsg.trim());
+                    }
+                } catch (Exception e) {
+                    grandTotalStats.failureCount++;
+                    String errorMsg = String.format("Error processing UID: %s, Error: %s\n", uid, e.getMessage());
+                    writeToFile(errorLogFile, errorMsg);
+                    log.error(errorMsg.trim());
+                }
+            }
+            
             stopWatch.stop();
             long totalSeconds = stopWatch.getTotalTimeMillis() / 1000;
 
             String finalLog = String.format(
                     "--------------------------------------------------\n" +
-                            "Revocation complete time: %s\n" +
-                            "Total records processed: %d\n" +
+                            "Revocation from file complete time: %s\n" +
+                            "Total UIDs processed: %d\n" +
                             "Success: %d\n" +
                             "Failed: %d\n" +
                             "Total time: %d seconds\n" +
@@ -377,7 +353,7 @@ public class DataMigration {
         }
     }
 
-    private BatchStats processRevokeRecordsBatch(List<ApplicationRecord> records) {
+    /*private BatchStats processRevokeRecordsBatch(List<ApplicationRecord> records) {
         BatchStats batchStats = new BatchStats();
         if (records.isEmpty()) {
             return batchStats;
@@ -415,7 +391,7 @@ public class DataMigration {
         }
 
         return batchStats;
-    }
+    }*/
 
     private BatchStats processRecordsBatch(List<ApplicationRecord> records) {
         BatchStats batchStats = new BatchStats();
@@ -638,6 +614,47 @@ public class DataMigration {
             }
 
             return records;
+
+        } catch (IOException e) {
+            log.error("Failed to read file: {}", e.getMessage(), e);
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * 从文件中读取UID列表
+     * 
+     * @param filename 文件名
+     * @return UID列表
+     */
+    private List<String> getUidListFromFile(String filename) {
+        List<String> uidList = new ArrayList<>();
+
+        try {
+            // 直接从文件系统读取文件
+            File file = new File(filename);
+            if (!file.exists()) {
+                log.error("File does not exist: {}", filename);
+                return new ArrayList<>();
+            }
+
+            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    String uid = line.trim();
+                    if (!uid.isEmpty()) {
+                        uidList.add(uid);
+                    }
+                }
+            }
+
+            if (uidList.isEmpty()) {
+                log.warn("No valid UIDs found in file {}", filename);
+                return new ArrayList<>();
+            }
+
+            log.info("Successfully read {} UIDs from file {}", uidList.size(), filename);
+            return uidList;
 
         } catch (IOException e) {
             log.error("Failed to read file: {}", e.getMessage(), e);

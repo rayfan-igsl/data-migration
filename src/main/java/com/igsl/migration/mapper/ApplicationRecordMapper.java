@@ -45,4 +45,7 @@ public interface ApplicationRecordMapper extends BaseMapper<ApplicationRecord> {
             "</foreach>" +
             "</script>")
     List<ApplicationRecord> getApplicationRecordsByCardNos(@Param("cardNos") List<String> cardNos);
+    
+    @Select("SELECT * FROM application_record WHERE eproof_uid = #{eproofUid} LIMIT 1")
+    ApplicationRecord getApplicationRecordByEproofUid(@Param("eproofUid") String eproofUid);
 }

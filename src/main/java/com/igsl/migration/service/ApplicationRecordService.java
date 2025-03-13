@@ -45,4 +45,13 @@ public class ApplicationRecordService extends ServiceImpl<ApplicationRecordMappe
                         .last(String.format("limit %d offset %d", limit, offset))
         );
     }
+    
+    /**
+     * 根据eproof_uid查询申请记录
+     * @param eproofUid eproof的唯一标识
+     * @return 申请记录，如果不存在则返回null
+     */
+    public ApplicationRecord getApplicationRecordByEproofUid(String eproofUid) {
+        return applicationRecordMapper.getApplicationRecordByEproofUid(eproofUid);
+    }
 }
